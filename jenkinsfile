@@ -87,8 +87,9 @@ stage('Operation')
     def emails = inputValues(params.EmailIds)
     echo "${params.choice}"
     if(params.choice == 'Start-Release'){
-        // master to be changed to dev
+        echo "inside"
         for (element in result) {
+            echo element
             gitFunction(element)
             def ansBool = evaluate()
             if(ansBool == false){
