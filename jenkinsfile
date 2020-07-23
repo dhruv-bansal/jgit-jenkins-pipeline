@@ -58,7 +58,8 @@ def inputValues(String par){
     def start = 0
     def end = 0
     def var = par
-    for (element in var) {
+    for (element in var){
+        echo element
         if(element == ';'){
             def additionValue = var.substring(start, end)
             names.add(additionValue)
@@ -70,7 +71,6 @@ def inputValues(String par){
 }
 
 node{
-
 properties([
   parameters(
     [choice(name: 'choice', choices: ['Start-Release', 'End-Release'], description: 'Select Mode'),
@@ -85,9 +85,7 @@ stage('Operation')
 {
     def result = inputValues(params.gitRepos)
     def emails = inputValues(params.EmailIds)
-    echo "${params.choice}"
     if(params.choice == 'Start-Release'){
-        echo "inside"
         for (element in result){
             echo element
         }        
