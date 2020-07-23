@@ -88,6 +88,9 @@ stage('Operation')
     echo "${params.choice}"
     if(params.choice == 'Start-Release'){
         echo "inside"
+        for (element in result){
+            echo element
+        }        
         for (element in result) {
             echo element
             gitFunction(element)
