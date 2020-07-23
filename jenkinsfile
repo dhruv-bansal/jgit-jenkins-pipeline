@@ -59,7 +59,6 @@ def inputValues(String par){
     def end = 0
     def var = par
     for (element in var){
-        echo element
         if(element == ';'){
             def additionValue = var.substring(start, end)
             names.add(additionValue)
@@ -83,7 +82,7 @@ properties([
 
 stage('Operation') 
 {
-    def result = inputValues(params.gitRepos)
+    def result = inputValues(params.GitRepos)
     def emails = inputValues(params.EmailIds)
     if(params.choice == 'Start-Release'){
         for (element in result){
