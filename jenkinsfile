@@ -6,7 +6,7 @@ def gitFunction(String repo){
  doGenerateSubmoduleConfigurations: false,
  extensions: [[$class: 'CleanBeforeCheckout']],
  submoduleCfg: [],
- userRemoteConfigs:  [[credentialsId: 'jgitpipelinecreds', url: repo]]])
+ userRemoteConfigs:  [[credentialsId: 'gitCreds', url: repo]]])
  //add your own git creds thing
 }
 
@@ -85,6 +85,7 @@ stage('Operation')
 {
     def result = inputValues(params.gitRepos)
     def emails = inputValues(params.EmailIds)
+    echo "${params.choice}"
     if(params.choice == 'Start-Release'){
         // master to be changed to dev
         for (element in result) {
