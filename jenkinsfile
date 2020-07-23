@@ -6,7 +6,7 @@ def gitFunction(String repo){
  doGenerateSubmoduleConfigurations: false,
  extensions: [[$class: 'CleanBeforeCheckout']],
  submoduleCfg: [],
- userRemoteConfigs:  [[credentialsId: 'gitCreds', url: repo]]])
+ userRemoteConfigs:  [[credentialsId: 'jgitpipelinecreds', url: repo]]])
  //add your own git creds thing
 }
 
