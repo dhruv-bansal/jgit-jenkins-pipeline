@@ -1,0 +1,114 @@
+#!/usr/bin/env groovy
+
+def gitFunction(String repo){
+ checkout([$class: 'GitSCM',
+ branches: [[name: '*/master']],
+ doGenerateSubmoduleConfigurations: false,
+ extensions: [[$class: 'CleanBeforeCheckout']],
+ submoduleCfg: [],
+ userRemoteConfigs:  [[credentialsId: 'gitCreds', url: repo]]])
+ //add your own git creds thing
+}
+
+
+def findBranch(){
+    //git branch -r --list origin/release-*.*.*
+    // what will you guys use in your scenario above one or bottom one
+    def branchList = sh returnStdout: true, script: "git branch --list release-*.*.*"  
+    if(branchList.trim() != ''){
+        return true
+        //means that there exists some repo like release-*.*.*
+    }
+    return false
+    //means that there no existing repo like release-*.*.*
+}
+
+def evaluate(){
+    def fileName = sh returnStdout: true, script: "git diff --name-only remotes/origin/${params.source} remotes/origin/${params.target}"  
+    if(fileName.trim() == "pom.xml")
+    {
+        def numAns = sh returnStdout: true, script: "git diff --numstat remotes/origin/${params.source} remotes/origin/${params.target}"
+        def numOfLines = numAns.substring(0, 2).trim()
+        if(numOfLines == '1'){
+            def output = sh returnStdout: true, script: "git diff --unified=0 remotes/origin/${params.source} remotes/origin/${params.target}" 
+            def tag;
+            for(int start = 0; start < output.length(); start = start + 1){
+                if(output[start] == '<'){
+                    tag = output.substring(start+1, start + 8)
+                    break
+                }
+            }
+            if(tag == 'version'){
+                return false
+                // false means there are no difference in code in the branches selected
+            }
+            return true
+            // true means that there are some differences in the code in  the branches selected
+        }
+        return true
+    }
+    else if(ans.trim() == ""){
+        return false
+    }
+    return true
+}
+
+def inputValues(String par){
+    def names = []
+    def start = 0
+    def end = 0
+    def var = par
+    for (element in var) {
+        if(element == ';'){
+            def additionValue = var.substring(start, end)
+            names.add(additionValue)
+            start = end + 1
+        }
+        end = end + 1
+    }
+    return names
+}
+
+node{
+
+properties([
+  parameters(
+    [choice(name: 'choice', choices: ['Start-Release', 'End-Release'], description: 'Select Mode'),
+    text(name: 'GitRepos', defaultValue: 'https://github.com/DialgicMew/jenkins.git;', description: 'Enter the git repos, add a semicolon after each repo'),
+    text(name: 'EmailIds', defaultValue: 'vatsalya.singh.ext@telekom-digital.com;', description: 'Enter the git repos, add a semicolon after each repo'),
+    string(name: 'source', defaultValue: 'dev', description: 'Source Branch of comparison'),
+    // defaultValue to be changed to dev in source and master in target. default value to be set to a company git repo in gitRepos ending by semicolon
+    string(name: 'target', defaultValue: 'master', description: 'Target branch of comparison')])
+])
+
+stage('Operation') 
+{
+    def result = inputValues(params.gitRepos)
+    def emails = inputValues(params.EmailIds)
+    if(params.choice == 'Start-Release'){
+        // master to be changed to dev
+        for (element in result) {
+            gitFunction(element)
+            def ansBool = evaluate()
+            if(ansBool == false){
+                echo "Code Repository ${element} not eligible for release, since no code difference found between branches ${params.source} and ${params.target}"
+            }
+            else{
+                echo "Some Changes have been detected between branches ${params.source} and ${params.target} in ${element}"
+            }
+        } 
+    }
+    else if(params.choice == 'End-Release'){
+        for (element in result) {
+            gitFunction(element)
+            def boolAns = findBranch()
+            if(boolAns == true){
+                echo "Run maven command"
+            }
+            else{
+                echo "Do not Run maven command"
+            }  
+        } 
+    }
+}
+}
