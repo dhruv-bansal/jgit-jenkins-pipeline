@@ -79,10 +79,6 @@ properties([
     // defaultValue to be changed to dev in source and master in target. default value to be set to a company git repo in gitRepos ending by semicolon
     string(name: 'target', defaultValue: 'master', description: 'Target branch of comparison')])
 ])
-
-tools {
-    maven 'M3'
-  }
   
 stage('Operation') 
 {
