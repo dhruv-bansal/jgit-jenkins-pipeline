@@ -93,7 +93,7 @@ stage('Operation')
             }
             else{
                 echo "Some Changes have been detected between branches ${params.source} and ${params.target} in ${element}"
-                withMaven(maven: 'mvn') {
+                withMaven(maven: 'M3') {
                     def output = sh returnStdout: true, script: "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true"
                 }
             }
