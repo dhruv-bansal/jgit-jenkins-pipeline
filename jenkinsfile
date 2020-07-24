@@ -47,7 +47,7 @@ def evaluate(){
         }
         return true
     }
-    else if(ans.trim() == ""){
+    else if(fileName.trim() == ""){
         return false
     }
     return true
@@ -84,10 +84,7 @@ stage('Operation')
 {
     def result = inputValues(params.GitRepos)
     def emails = inputValues(params.EmailIds)
-    if(params.choice == 'Start-Release'){
-        for (element in result){
-            echo element
-        }        
+    if(params.choice == 'Start-Release'){      
         for (element in result) {
             echo element
             gitFunction(element)
