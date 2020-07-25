@@ -83,6 +83,9 @@ properties([
 stage('Operation') 
 {
     def result = inputValues(params.GitRepos)
+    if(result.length == 0){
+        echo "No git repos specified or semicolon missed after the git Repo."
+    }
     def emails = inputValues(params.EmailIds)
     if(params.choice == 'Start-Release'){      
         for (element in result) {
