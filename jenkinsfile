@@ -8,13 +8,14 @@
  */
 def gitCheckout(String repo, String branchName) {
     checkout([$class                           : 'GitSCM',
-              branches                         : [[name: '*/' + branchName]],
+              branches                         : [[name: branchName]],
               doGenerateSubmoduleConfigurations: false,
-              extensions                       : [[$class: 'CleanBeforeCheckout'], [$class: 'PruneStaleBranch']],
+              extensions                       : [[$class: 'CleanBeforeCheckout'], [$class: 'LocalBranch'], [$class: 'PruneStaleBranch']],
               submoduleCfg                     : [],
               userRemoteConfigs                : [[credentialsId: 'jgitpipelinecreds', url: repo]]])
     //add your own git creds thing
     // add extension of pruning - https://stackoverflow.com/questions/48936345/how-can-i-execute-code-on-prune-stale-remote-tracking-branches-in-jenkins
+    // SCM steps: https://www.jenkins.io/doc/pipeline/steps/workflow-scm-step/
 }
 
 /**
@@ -54,8 +55,14 @@ def getCurrentVersion() {
  * @return
  */
 def isReleaseBranchExists() {
-    //git branch -r --list origin/release-*.*.*
-    // what will you guys use in your scenario above one or bottom one
+
+    echo "Checking if release branch exists or not"
+
+    sh 'git branch -a'
+    sh 'git branch -r'
+    sh 'git branch --list release*'
+
+    // check if this can be done by plugin
     def branchList = sh returnStdout: true, script: "git branch --list release-*.*.*"
     if (branchList.trim() != '') {
         return true
@@ -121,7 +128,7 @@ node {
             parameters(
                     [
                             choice(name: 'choice', choices: ['Start-Release', 'End-Release'], description: 'Select Mode'),
-                            booleanParam(name: 'debugmode', defaultValue: true, description: 'When debug mode is On, JGIT command will not be executed'),
+                            booleanParam(name: 'debugmode', defaultValue: false, description: 'When debug mode is On, JGIT command will not be executed'),
                             text(name: 'GitRepos', defaultValue: 'http://gitlab/jgittest/jgit_repo1.git;', description: 'Enter the git repos, add a semicolon after each repo'),
                             text(name: 'EmailIds', defaultValue: 'vatsalya.singh.ext@telekom-digital.com;', description: 'Enter the git repos, add a semicolon after each repo'),
                             string(name: 'source', defaultValue: 'dev', description: 'Source Branch of comparison'),
@@ -162,13 +169,11 @@ node {
                     sh 'git branch -a'
                     sh 'git branch -r'
 
-                    echo "Debug mode" + params.debugmode
+                    echo "Debug mode - " + params.debugmode
                     if (!params.debugmode) {
                         withMaven(maven: 'M3') {
                             // def output = sh returnStdout: true, script: "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true"
-                            sh 'mvn --version'
-                            def output = sh returnStdout: true, script: "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true -Dusername=root -Dpassword=Passw0rd -DreleaseVersion=1.8.0 -DdevelopmentVersion=1.9.0-SNAPSHOT"
-                            echo output
+                            sh "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true -Dusername=root -Dpassword=Passw0rd -DreleaseVersion=1.12.0 -DdevelopmentVersion=1.13.0-SNAPSHOT"
                         }
                     }
                 }
@@ -185,6 +190,8 @@ node {
                 if (releaseBranchExists == true) {
                     sh 'git branch'
                     sh 'git checkout dev'
+                    sh 'git branch -a'
+                    sh 'git branch -r'
                     echo "Run maven command for ending the release"
 
                     echo "Debug mode" + params.debugmode
