@@ -1,17 +1,44 @@
 #!/usr/bin/env groovy
 
-def gitFunction(String repo) {
+/**
+ * This function checkouts the code from git using git pipeline plugin
+ * @param repo
+ * @param branchName
+ * @return
+ */
+def gitCheckout(String repo, String branchName) {
     checkout([$class                           : 'GitSCM',
-              branches                         : [[name: '*/master']],
+              branches                         : [[name: '*/' + branchName]],
               doGenerateSubmoduleConfigurations: false,
-              extensions                       : [[$class: 'CleanBeforeCheckout']],
+              extensions                       : [[$class: 'CleanBeforeCheckout'], [$class: 'PruneStaleBranch']],
               submoduleCfg                     : [],
               userRemoteConfigs                : [[credentialsId: 'jgitpipelinecreds', url: repo]]])
     //add your own git creds thing
+    // add extension of pruning - https://stackoverflow.com/questions/48936345/how-can-i-execute-code-on-prune-stale-remote-tracking-branches-in-jenkins
 }
 
+/**
+ * This function delete all the local branches from the git
+ * @return
+ */
+def deleteLocalBranches() {
+    echo "Delete local branches"
+    sh "git branch --merged | grep -v \\* | xargs git branch -D"
+}
 
-def findBranch() {
+/**
+ *
+ * @return
+ */
+def sycnLocalBranchesWithRemote() {
+    sh 'git remote prune origin'
+}
+
+/**
+ * This function check if the release-*-* branch exist on the given repo or not
+ * @return
+ */
+def isReleaseBranchExists() {
     //git branch -r --list origin/release-*.*.*
     // what will you guys use in your scenario above one or bottom one
     def branchList = sh returnStdout: true, script: "git branch --list release-*.*.*"
@@ -23,7 +50,14 @@ def findBranch() {
     //means that there no existing repo like release-*.*.*
 }
 
-def evaluate() {
+/**
+ * This method evalutes the difference between given source and target branch.
+ * - if the difference is only one and that to only pom module version then this method returns false i.e. repo is not eligible to release
+ * - if the difference are more then that means there is some code changes that are eligible to release and jgit:release-start command is executed
+ *
+ * @return
+ */
+def checkCodeDifferenceBetweenGivenBranches() {
     def fileName = sh returnStdout: true, script: "git diff --name-only remotes/origin/${params.source} remotes/origin/${params.target}"
     if (fileName.trim() == "pom.xml") {
         def numAns = sh returnStdout: true, script: "git diff --numstat remotes/origin/${params.source} remotes/origin/${params.target}"
@@ -51,11 +85,11 @@ def evaluate() {
     return true
 }
 
-def inputValues(String par) {
+def parseInputData(String inputValue) {
     def names = []
     def start = 0
     def end = 0
-    def var = par
+    def var = inputValue
     for (element in var) {
         if (element == ';') {
             def additionValue = var.substring(start, end)
@@ -70,52 +104,87 @@ def inputValues(String par) {
 node {
     properties([
             parameters(
-                    [choice(name: 'choice', choices: ['Start-Release', 'End-Release'], description: 'Select Mode'),
-                     text(name: 'GitRepos', defaultValue: 'https://github.com/DialgicMew/jenkins.git;', description: 'Enter the git repos, add a semicolon after each repo'),
-                     text(name: 'EmailIds', defaultValue: 'vatsalya.singh.ext@telekom-digital.com;', description: 'Enter the git repos, add a semicolon after each repo'),
-                     string(name: 'source', defaultValue: 'dev', description: 'Source Branch of comparison'),
-                     // defaultValue to be changed to dev in source and master in target. default value to be set to a company git repo in gitRepos ending by semicolon
-                     string(name: 'target', defaultValue: 'master', description: 'Target branch of comparison')])
+                    [
+                            choice(name: 'choice', choices: ['Start-Release', 'End-Release'], description: 'Select Mode'),
+                            booleanParam(name: 'debugmode', defaultValue: true, description: 'When debug mode is On, JGIT command will not be executed'),
+                            text(name: 'GitRepos', defaultValue: 'http://gitlab/jgittest/jgit_repo1.git;', description: 'Enter the git repos, add a semicolon after each repo'),
+                            text(name: 'EmailIds', defaultValue: 'vatsalya.singh.ext@telekom-digital.com;', description: 'Enter the git repos, add a semicolon after each repo'),
+                            string(name: 'source', defaultValue: 'dev', description: 'Source Branch of comparison'),
+                            // defaultValue to be changed to dev in source and master in target. default value to be set to a company git repo in gitRepos ending by semicolon
+                            string(name: 'target', defaultValue: 'master', description: 'Target branch of comparison')
+                    ])
     ])
 
-    tools {
-        maven 'M3' // M3 added as the global tool of maven via plugin
-                   // Pipeline Maven Integration Plugin - https://plugins.jenkins.io/pipeline-maven/
-    }
+    // tools {
+    //     maven 'M3' // M3 added as the global tool of maven via plugin
+    //                // Pipeline Maven Integration Plugin - https://plugins.jenkins.io/pipeline-maven/
+    // }
 
-    stage('Operation')
-            {
-                def result = inputValues(params.GitRepos)
-                def emails = inputValues(params.EmailIds)
-                if (params.choice == 'Start-Release') {
-                    for (element in result) {
-                        echo element
-                    }
-                    for (element in result) {
-                        echo element
-                        gitFunction(element)
-                        def ansBool = evaluate()
-                        if (ansBool == false) {
-                            echo "Code Repository ${element} not eligible for release, since no code difference found between branches ${params.source} and ${params.target}"
-                        } else {
-                            echo "Some Changes have been detected between branches ${params.source} and ${params.target} in ${element}"
-                            withMaven(maven: 'M3') {
-                                def output = sh returnStdout: true, script: "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true"
-                                sh 'mvn --version'
-                            }
+    stage('Operation') {
+
+        def gitRepos = parseInputData(params.GitRepos)
+        def emails = parseInputData(params.EmailIds)
+
+        if (params.choice == 'Start-Release') {
+
+            for (gitRepo in gitRepos) {
+
+                echo "Checking out " + gitRepo
+                gitCheckout(gitRepo, 'dev')
+
+
+                def codeDifference = checkCodeDifferenceBetweenGivenBranches()
+                echo "Code difference are eligible for release " + codeDifference
+
+                if (codeDifference == false) {
+                    echo "Code Repository ${gitRepo} not eligible for release, since no code difference found between branches ${params.source} and ${params.target}"
+
+                } else {
+
+                    echo "Some Changes have been detected between branches ${params.source} and ${params.target} in ${gitRepo}"
+                    sh 'git branch'
+                    sh 'git checkout dev'
+                    sh 'git branch -a'
+                    sh 'git branch -r'
+
+                    echo "Debug mode" + params.debugmode
+                    if (!params.debugmode) {
+                        withMaven(maven: 'M3') {
                             // def output = sh returnStdout: true, script: "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true"
-                        }
-                    }
-                } else if (params.choice == 'End-Release') {
-                    for (element in result) {
-                        gitFunction(element)
-                        def boolAns = findBranch()
-                        if (boolAns == true) {
-                            echo "Run maven command"
-                        } else {
-                            echo "Do not Run maven command"
+                            sh 'mvn --version'
+                            def output = sh returnStdout: true, script: "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true -Dusername=root -Dpassword=Passw0rd -DreleaseVersion=1.8.0 -DdevelopmentVersion=1.9.0-SNAPSHOT"
+                            echo output
                         }
                     }
                 }
+
             }
+        } else if (params.choice == 'End-Release') {
+
+            for (gitRepo in gitRepos) {
+
+                echo "Checking out " + gitRepo
+                gitCheckout(gitRepo, 'dev')
+
+                def releaseBranchExists = isReleaseBranchExists()
+                if (releaseBranchExists == true) {
+                    sh 'git branch'
+                    sh 'git checkout dev'
+                    echo "Run maven command for ending the release"
+
+                    echo "Debug mode" + params.debugmode
+                    if (!params.debugmode) {
+                        withMaven(maven: 'M3') {
+                            sh 'mvn --version'
+                            def output = sh returnStdout: true, script: "mvn jgitflow:release-finish -DallowSnapshots -DperformRelease=false -DpushReleases=true -Dusername=root -Dpassword=Passw0rd"
+                            echo output
+                        }
+                    }
+                } else {
+                    echo "No release branch exist for " + gitRepo
+                }
+
+            }
+        }
+    }
 }
