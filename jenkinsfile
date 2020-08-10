@@ -12,7 +12,7 @@ def gitCheckout(String repo, String branchName) {
               doGenerateSubmoduleConfigurations: false,
               extensions                       : [[$class: 'CleanBeforeCheckout'], [$class: 'LocalBranch'], [$class: 'PruneStaleBranch']],
               submoduleCfg                     : [],
-              userRemoteConfigs                : [[credentialsId: 'jgitpipelinecreds', url: repo]]])
+              userRemoteConfigs                : [[credentialsId: 'gitCreds', url: repo]]])
     //add your own git creds thing
     // add extension of pruning - https://stackoverflow.com/questions/48936345/how-can-i-execute-code-on-prune-stale-remote-tracking-branches-in-jenkins
     // SCM steps: https://www.jenkins.io/doc/pipeline/steps/workflow-scm-step/
