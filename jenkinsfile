@@ -18,6 +18,12 @@ def gitCheckout(String repo, String branchName) {
     // SCM steps: https://www.jenkins.io/doc/pipeline/steps/workflow-scm-step/
 }
 
+
+def readIncrementPattern(){
+    def patternValue = sh returnStdout: true, script: "cat jgit.version"
+    return patternValue
+}
+
 /**
  * This method calculates the next dev version.
  * The logic is derived from jgit.version file at the root of the codebase.
@@ -153,7 +159,8 @@ node {
 
                 echo "Checking out " + gitRepo
                 gitCheckout(gitRepo, 'dev')
-
+                def incrementPattern = readIncrementPattern()
+                echo "${incrementPattern} is the increment pattern"
 
                 def codeDifference = checkCodeDifferenceBetweenGivenBranches()
                 echo "Code difference are eligible for release " + codeDifference
