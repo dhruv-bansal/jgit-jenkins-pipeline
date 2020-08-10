@@ -34,7 +34,7 @@ def readIncrementPattern(){
  */
 def getNextDevelopmentVersion(String currentVersion) {
     //0.0.1-SNAPSHOT
-    def extractedNumbers = currentVersion.substring(0, 5).concat(".")
+    def extractedNumbers = currentVersion.substring(0, 5) + "."
     //0.0.1.
     def values = []
     def start = 0
