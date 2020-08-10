@@ -190,7 +190,7 @@ node {
                 echo "Checking out " + gitRepo
                 gitCheckout(gitRepo, 'dev')
 
-               
+                getNextDevelopmentVersion("1.0.0-SNAPSHOT")
 
                 def codeDifference = checkCodeDifferenceBetweenGivenBranches()
                 echo "Code difference are eligible for release " + codeDifference
@@ -224,7 +224,6 @@ node {
                 gitCheckout(gitRepo, 'dev')
 
 
-                getNextDevelopmentVersion("1.0.0-SNAPSHOT")
 
                 def releaseBranchExists = isReleaseBranchExists()
                 if (releaseBranchExists == true) {
