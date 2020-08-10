@@ -33,7 +33,8 @@ def readIncrementPattern(){
  * @return
  */
 def getNextDevelopmentVersion(String currentVersion) {
-
+    def incrementPattern = readIncrementPattern()
+    
     //if jgit.version file is not found in the root direction then this function returns the error
     //and pipeline would fail
     return ;
@@ -46,7 +47,7 @@ def getNextDevelopmentVersion(String currentVersion) {
  * @return
  */
 def getReleaseVersion(String currentVersion) {
-    return ;
+    return currentVersion.substring(0, 5).trim();
 }
 
 /**
@@ -159,8 +160,9 @@ node {
 
                 echo "Checking out " + gitRepo
                 gitCheckout(gitRepo, 'dev')
-                def incrementPattern = readIncrementPattern()
-                echo "${incrementPattern} is the increment pattern"
+
+                def patternValue = sh returnStdout: true, script: "cat jgit"
+                echo "${patternValue} is the real shit"
 
                 def codeDifference = checkCodeDifferenceBetweenGivenBranches()
                 echo "Code difference are eligible for release " + codeDifference
