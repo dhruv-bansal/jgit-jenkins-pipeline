@@ -18,20 +18,35 @@ def gitCheckout(String repo, String branchName) {
 }
 
 /**
- * This function delete all the local branches from the git
+ * This method calculates the next dev version.
+ * The logic is derived from jgit.version file at the root of the codebase.
+ *
+ * if jgit.version file is not found in the root direction then this function returns the error and pipeline will fail
+ * @param currentVersion
  * @return
  */
-def deleteLocalBranches() {
-    echo "Delete local branches"
-    sh "git branch --merged | grep -v \\* | xargs git branch -D"
+def getNextDevelopmentVersion(String currentVersion) {
+
+    //if jgit.version file is not found in the root direction then this function returns the error
+    //and pipeline would fail
+    return ;
 }
 
 /**
- *
+ * This method calculates the release version to input in release-start command.
+ * Release version logic is simple - it is current version without '-SNAPSHOT'
+ * @param currentVersion
  * @return
  */
-def sycnLocalBranchesWithRemote() {
-    sh 'git remote prune origin'
+def getReleaseVersion(String currentVersion) {
+    return ;
+}
+
+/**
+ * This method finds the current version of given project
+ */
+def getCurrentVersion() {
+
 }
 
 /**
