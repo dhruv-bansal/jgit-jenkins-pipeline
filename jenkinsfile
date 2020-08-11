@@ -19,7 +19,7 @@ def gitCheckout(String repo, String branchName) {
 }
 
 
-def readIncrementPattern(){
+def readIncrementPattern() {
     //This method reads jgit.version file inside the git repos and takes substring of 5 element after the '=' sign inside that file. adds those values in string format to version array.
     def version = []
     //0th position for release version pattern, 1st postion for hotfix pattern read from file
@@ -33,14 +33,13 @@ def readIncrementPattern(){
         start = start + 1
     }
     finalPositionsOfY = []
-    for(element in version){
+    for (element in version) {
         def countPoints = 0
-        for(letter in element){
-            if(letter == "y"){
+        for (letter in element) {
+            if (letter == "y") {
                 finalPositionsOfY.add(countPoints)
                 break;
-            }
-            else if(letter=="."){
+            } else if (letter == ".") {
                 countPoints = countPoints + 1
             }
         }
@@ -81,10 +80,9 @@ def getNextDevelopmentVersion(String currentVersion) {
         if (releaseVersion == 0) {
             values[0] = values[0] + 1
 
-        } else if(releaseVersion == 1) {
+        } else if (releaseVersion == 1) {
             values[1] = values[1] + 1
-        }
-        else{
+        } else {
             values[2] = values[2] + 1
         }
         return "${values[0]}.${values[1]}.${values[2]}-SNAPSHOT"
@@ -110,7 +108,9 @@ def getReleaseVersion(String currentVersion) {
  * This method finds the current version of given project
  */
 def getCurrentVersion() {
-    export pomversion=$(mvn build-helper:parse-version help:evaluate -Dexpression=project.version -q -DforceStdout );
+    def currentVersion = "${sh(script: 'mvn build - helper: parse - version help: evaluate - Dexpression = project.version - q - DforceStdout', returnStdout: true).trim()}"
+    echo "Current version is ${currentVersion}"
+    return currentVersion
 }
 
 /**
@@ -217,8 +217,12 @@ node {
                 echo "Checking out " + gitRepo
                 gitCheckout(gitRepo, 'dev')
 
-                def nextRelease = getNextDevelopmentVersion("1.0.0-SNAPSHOT")
-                echo "${nextRelease}"
+                def currentVersion = getCurrentVersion()
+                def nextDevelopmentVersion = getNextDevelopmentVersion(currentVersion)
+                echo "Next development version from current version ${currentVersion} is ${nextDevelopmentVersion}"
+
+                def nextReleaseVersion = getReleaseVersion(currentVersion);
+                echo "Next release version from current version ${currentVersion} is ${nextReleaseVersion}"
 
                 def codeDifference = checkCodeDifferenceBetweenGivenBranches()
                 echo "Code difference are eligible for release " + codeDifference
@@ -238,7 +242,7 @@ node {
                     if (!params.debugmode) {
                         withMaven(maven: 'M3') {
                             // def output = sh returnStdout: true, script: "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true"
-                            sh "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true -Dusername=root -Dpassword=Passw0rd -DreleaseVersion=1.12.0 -DdevelopmentVersion=1.13.0-SNAPSHOT"
+                            sh "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true -Dusername=root -Dpassword=Passw0rd -DreleaseVersion=${nextReleaseVersion} -DdevelopmentVersion=${nextDevelopmentVersion}"
                         }
                     }
                 }
