@@ -20,7 +20,8 @@ def gitCheckout(String repo, String branchName) {
 
 
 def readIncrementPattern(){
-    def patternValue = sh returnStdout: true, script: "cat jgit.version"
+    def patternValue = readFile(file: 'jgit.version')
+    echo "${patternValue}"
     return patternValue
 }
 
@@ -190,7 +191,12 @@ node {
                 echo "Checking out " + gitRepo
                 gitCheckout(gitRepo, 'dev')
 
-                getNextDevelopmentVersion("1.0.0-SNAPSHOT")
+                def aaaa = readIncrementPattern()
+
+
+
+
+                // getNextDevelopmentVersion("1.0.0-SNAPSHOT")
 
                 def codeDifference = checkCodeDifferenceBetweenGivenBranches()
                 echo "Code difference are eligible for release " + codeDifference
