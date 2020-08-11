@@ -235,14 +235,6 @@ node {
                 echo "Checking out " + gitRepo
                 gitCheckout(gitRepo, 'dev')
 
-                def currentVersion = getCurrentVersion()
-
-                def nextDevelopmentVersion = getNextDevelopmentVersion(currentVersion)
-                echo "Next development version from current version ${currentVersion} is ${nextDevelopmentVersion}"
-
-                def nextReleaseVersion = getReleaseVersion(currentVersion);
-                echo "Next release version from current version ${currentVersion} is ${nextReleaseVersion}"
-
                 def codeDifference = checkCodeDifferenceBetweenGivenBranches()
                 echo "Code difference are eligible for release " + codeDifference
 
@@ -250,6 +242,14 @@ node {
                     echo "Code Repository ${gitRepo} not eligible for release, since no code difference found between branches ${params.source} and ${params.target}"
 
                 } else {
+
+                    def currentVersion = getCurrentVersion()
+
+                    def nextDevelopmentVersion = getNextDevelopmentVersion(currentVersion)
+                    echo "Next development version from current version ${currentVersion} is ${nextDevelopmentVersion}"
+
+                    def nextReleaseVersion = getReleaseVersion(currentVersion);
+                    echo "Next release version from current version ${currentVersion} is ${nextReleaseVersion}"
 
                     echo "Some Changes have been detected between branches ${params.source} and ${params.target} in ${gitRepo}"
                     sh 'git branch'
