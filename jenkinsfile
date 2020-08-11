@@ -1,4 +1,5 @@
 #!/usr/bin/env groovy
+import java.util.logging.Logger
 
 /**
  * This function checkouts the code from git using git pipeline plugin
