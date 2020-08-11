@@ -89,7 +89,6 @@ def getNextDevelopmentVersion(String currentVersion) {
             }
         }
         if(values.size() == 3){
-            values[2] = values[2] + 1
             return "${values[0]}.${values[1]}.${values[2]}-SNAPSHOT"
         }else{
             return "${values[0]}.${values[1]}-SNAPSHOT"
