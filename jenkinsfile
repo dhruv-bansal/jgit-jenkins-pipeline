@@ -58,9 +58,7 @@ def getNextDevelopmentVersion(String currentVersion) {
     echo "Calculating next development version from current version ${currentVersion}"
     //0.0.1-SNAPSHOT or 0.1-SNAPSHOT
     def intermediateResult = getReleaseVersion(currentVersion);
-    echo "${intermediateResult}  intermediate"
     def extractedNumbers = intermediateResult + "."
-    echo "${extractedNumbers}  extracted"
     //0.0.1. or O.1.
     def values = []
     def start = 0
@@ -249,12 +247,11 @@ node {
                 } else {
 
                     echo "Some Changes have been detected between branches ${params.source} and ${params.target} in ${gitRepo}"
-                    sh 'git branch'
-                    sh 'git checkout dev'
-                    sh 'git branch -a'
-                    sh 'git branch -r'
-
-                    echo "Debug mode - " + params.debugmode
+                    // sh 'git branch'
+                    // sh 'git checkout dev'
+                    // sh 'git branch -a'
+                    // sh 'git branch -r'
+                    // echo "Debug mode - " + params.debugmode
                     if (!params.debugmode) {
                         withMaven(maven: 'M3') {
                             // def output = sh returnStdout: true, script: "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true"
@@ -281,13 +278,12 @@ node {
 
                 def releaseBranchExists = isReleaseBranchExists()
                 if (releaseBranchExists == true) {
-                    sh 'git branch'
-                    sh 'git checkout dev'
-                    sh 'git branch -a'
-                    sh 'git branch -r'
+                    // sh 'git branch'
+                    // sh 'git checkout dev'
+                    // sh 'git branch -a'
+                    // sh 'git branch -r'
                     echo "Run maven command for ending the release"
-
-                    echo "Debug mode" + params.debugmode
+                    // echo "Debug mode" + params.debugmode
                     if (!params.debugmode) {
                         withMaven(maven: 'M3') {
                             sh 'mvn --version'
