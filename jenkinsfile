@@ -57,11 +57,10 @@ def readIncrementPattern() {
  * @return
  */
 def getNextDevelopmentVersion(String currentVersion) {
-    Logger logger = Logger.getLogger('org.example.jobdsl')
     echo "Calculating next development version from current version ${currentVersion}"
     //0.0.1-SNAPSHOT
     def extractedNumbers = currentVersion.substring(0, 5) + "."
-    logger.info('Extracted Numbers {}', extractedNumbers)
+    echo "Extracted Numbers ${extractedNumbers}"
 
     //0.0.1.
     def values = []
@@ -70,8 +69,7 @@ def getNextDevelopmentVersion(String currentVersion) {
     def var = extractedNumbers
     for (element in var) {
         if (element == '.') {
-
-            logger.info('Getting integer from var {}, start- {}, end- {}', var, start, end)
+            echo "Getting integer from var ${var}, start- ${start}, end- ${end}"
             def additionValue = var.substring(start, end).toInteger()
 
             values.add(additionValue)
