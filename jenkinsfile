@@ -75,7 +75,11 @@ def getNextDevelopmentVersion(String currentVersion) {
     try {
         def incrementPattern = readIncrementPattern()
         def releaseVersion = incrementPattern[0]
+
         def hotFixVersion = incrementPattern[1]
+        echo "${releaseVersion}  release"
+        echo "${hotFixVersion}  hotfix"
+
         if (releaseVersion == 0) {
             values[0] = values[0] + 1
 
