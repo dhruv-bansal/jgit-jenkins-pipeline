@@ -262,8 +262,13 @@ node {
                 echo "Checking out " + gitRepo
                 gitCheckout(gitRepo, 'dev')
 
-                def nextRelease = getNextDevelopmentVersion("1.0.0-SNAPSHOT")
-                echo "${nextRelease}"
+                def currentVersion = getCurrentVersion()
+
+                def nextDevelopmentVersion = getNextDevelopmentVersion(currentVersion)
+                echo "Next development version from current version ${currentVersion} is ${nextDevelopmentVersion}"
+
+                def nextReleaseVersion = getReleaseVersion(currentVersion);
+                echo "Next release version from current version ${currentVersion} is ${nextReleaseVersion}"
 
                 def releaseBranchExists = isReleaseBranchExists()
                 if (releaseBranchExists == true) {
