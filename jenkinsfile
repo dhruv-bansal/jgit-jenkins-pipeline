@@ -228,10 +228,12 @@ node {
         def gitRepos = parseInputData(params.GitRepos)
         def emails = parseInputData(params.EmailIds)
 
-        deleteDir();
         if (params.choice == 'Start-Release') {
 
             for (gitRepo in gitRepos) {
+
+                echo "cleaning workspace"
+                deleteDir();
 
                 echo "Checking out " + gitRepo
                 gitCheckout(gitRepo, 'dev')
@@ -267,6 +269,8 @@ node {
                     }
                 }
 
+                echo "cleaning workspace"
+                deleteDir();
             }
         } else if (params.choice == 'End-Release') {
 
@@ -295,6 +299,8 @@ node {
                     echo "No release branch exist for " + gitRepo
                 }
 
+                echo "cleaning workspace"
+                deleteDir();
             }
         }
     }
