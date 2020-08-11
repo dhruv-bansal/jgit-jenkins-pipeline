@@ -41,7 +41,7 @@ def readIncrementPattern(){
                 break;
             }
             else if(letter=="."){
-                count = count + 1
+                countPoints = countPoints + 1
             }
         }
     }
