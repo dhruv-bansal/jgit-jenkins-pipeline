@@ -111,15 +111,12 @@ def getReleaseVersion(String currentVersion) {
  */
 def getCurrentVersion() {
     echo "Getting current version"
-
-    def currentVersion = sh(returnStdout: true,
-            script: 'mvn org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.version -q -DforceStdout --batch-mode -U -e -Dsurefire.useFile=false').trim()
-    echo "Current version is ${currentVersion}"
-    return currentVersion
-
-//    withMaven(maven: 'M3') {
-//
-//    }
+    withMaven(maven: 'M3') {
+        def currentVersion = sh(returnStdout: true,
+                script: 'mvn org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.version -q -DforceStdout --batch-mode -U -e -Dsurefire.useFile=false | tail -n 1').trim()
+        echo "Current version is ${currentVersion}"
+        return currentVersion
+    }
 }
 
 /**
@@ -209,10 +206,10 @@ node {
                     ])
     ])
 
-     tools {
-         maven "M3" // M3 added as the global tool of maven via plugin
-                    // Pipeline Maven Integration Plugin - https://plugins.jenkins.io/pipeline-maven/
-     }
+//     tools {
+//         maven "M3" // M3 added as the global tool of maven via plugin
+//                    // Pipeline Maven Integration Plugin - https://plugins.jenkins.io/pipeline-maven/
+//     }
 
     stage('Operation') {
 
