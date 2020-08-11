@@ -112,14 +112,10 @@ def getReleaseVersion(String currentVersion) {
 def getCurrentVersion() {
     echo "Getting current version"
 
-    IMAGE = readMavenPom().getArtifactId()
-    VERSION = readMavenPom().getVersion()
-    echo "IMAGE: ${IMAGE}"
-    echo "VERSION: ${VERSION}"
-
     withMaven(maven: 'M3') {
 //        def currentVersion = "${sh(script: 'mvn build-helper:parse-version help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true).trim()}"
-        def currentVersion  = sh(script:'mvn build-helper:parse-version help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true).trim()
+        def currentVersion = sh(returnStdout: true,
+                script: 'mvn org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.version -q -DforceStdout --batch-mode -U -e -Dsurefire.useFile=false').trim()
         echo "Current version is ${currentVersion}"
         return currentVersion
     }
