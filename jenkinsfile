@@ -1,5 +1,4 @@
 #!/usr/bin/env groovy
-
 /**
  * This function checkouts the code from git using git pipeline plugin
  * @param repo
@@ -17,7 +16,6 @@ def gitCheckout(String repo, String branchName) {
     // add extension of pruning - https://stackoverflow.com/questions/48936345/how-can-i-execute-code-on-prune-stale-remote-tracking-branches-in-jenkins
     // SCM steps: https://www.jenkins.io/doc/pipeline/steps/workflow-scm-step/
 }
-
 
 def readIncrementPattern() {
     //This method reads jgit.version file inside the git repos and takes substring of 5 element after the '=' sign inside that file. adds those values in string format to version array.
@@ -44,6 +42,7 @@ def readIncrementPattern() {
             }
         }
     }
+    //Finally returns the number of '.' before 'y' so that we can identify the position of it.
     return finalPositionsOfY
 }
 
@@ -57,45 +56,50 @@ def readIncrementPattern() {
  */
 def getNextDevelopmentVersion(String currentVersion) {
     echo "Calculating next development version from current version ${currentVersion}"
-    //0.0.1-SNAPSHOT
+    //0.0.1-SNAPSHOT or 0.1-SNAPSHOT
     def intermediateResult = getReleaseVersion(currentVersion);
     echo "${intermediateResult}  intermediate"
     def extractedNumbers = intermediateResult + "."
     echo "${extractedNumbers}  extracted"
-    //0.0.1.
+    //0.0.1. or O.1.
     def values = []
     def start = 0
     def end = 0
-    def var = extractedNumbers
-    for (element in var) {
+    for (element in extractedNumbers) {
         if (element == '.') {
-            def additionValue = var.substring(start, end).toInteger()
+            def additionValue = extractedNumbers.substring(start, end).toInteger()
             values.add(additionValue)
             start = end + 1
         }
         end = end + 1
     }
     try {
+    //if jgit.version file is not found in the root direction then this function returns the error
+    //and pipeline would fail
         def incrementPattern = readIncrementPattern()
         def releaseVersion = incrementPattern[0]
         def hotFixVersion = incrementPattern[1]
-        // echo "${releaseVersion}"
-        // echo "${hotFixVersion}"
         if (releaseVersion == 0) {
             values[0] = values[0] + 1
-
         } else if (releaseVersion == 1) {
             values[1] = values[1] + 1
         } else {
-            values[2] = values[2] + 1
+            if(values.size() == 3){
+                values[2] = values[2] + 1
+            }else{
+                echo "Wrong release version pattern specified inside jgit.version file."
+            }
         }
-        return "${values[0]}.${values[1]}.${values[2]}-SNAPSHOT"
+        if(values.size() == 3){
+            values[2] = values[2] + 1
+            return "${values[0]}.${values[1]}.${values[2]}-SNAPSHOT"
+        }else{
+            return "${values[0]}.${values[1]}-SNAPSHOT"
+        }
     }
     catch (exception) {
         echo "${exception}"
     }
-    //if jgit.version file is not found in the root direction then this function returns the error
-    //and pipeline would fail
 }
 
 /**
@@ -133,11 +137,9 @@ def getCurrentVersion() {
 def isReleaseBranchExists() {
 
     echo "Checking if release branch exists or not"
-
-    sh 'git branch -a'
-    sh 'git branch -r'
-    sh 'git branch --list release*'
-
+    // sh 'git branch -a'
+    // sh 'git branch -r'
+    // sh 'git branch --list release*'
     // check if this can be done by plugin
     def branchList = sh returnStdout: true, script: "git branch --list release-*.*.*"
     if (branchList.trim() != '') {
