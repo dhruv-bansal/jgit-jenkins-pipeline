@@ -112,7 +112,8 @@ def getReleaseVersion(String currentVersion) {
 def getCurrentVersion() {
     echo "Getting current version"
     withMaven(maven: 'M3') {
-        def currentVersion = "${sh(script: 'mvn build-helper:parse-version help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true).trim()}"
+//        def currentVersion = "${sh(script: 'mvn build-helper:parse-version help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true).trim()}"
+        def currentVersion = $(mvn build-helper:parse-version help:evaluate -Dexpression=project.version -q -DforceStdout );
         echo "Current version is ${currentVersion}"
     }
     return currentVersion
