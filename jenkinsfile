@@ -12,7 +12,7 @@ def gitCheckout(String repo, String branchName) {
               doGenerateSubmoduleConfigurations: false,
               extensions                       : [[$class: 'CleanBeforeCheckout'], [$class: 'LocalBranch'], [$class: 'PruneStaleBranch']],
               submoduleCfg                     : [],
-              userRemoteConfigs                : [[credentialsId: 'jgitpipelinecreds', url: repo]]])
+              userRemoteConfigs                : [[credentialsId: 'gitCreds', url: repo]]])
     //add your own git creds thing
     // add extension of pruning - https://stackoverflow.com/questions/48936345/how-can-i-execute-code-on-prune-stale-remote-tracking-branches-in-jenkins
     // SCM steps: https://www.jenkins.io/doc/pipeline/steps/workflow-scm-step/
@@ -197,7 +197,7 @@ node {
                     [
                             choice(name: 'choice', choices: ['Start-Release', 'End-Release'], description: 'Select Mode'),
                             booleanParam(name: 'debugmode', defaultValue: false, description: 'When debug mode is On, JGIT command will not be executed'),
-                            text(name: 'GitRepos', defaultValue: 'http://gitlab/jgittest/jgit_repo1.git;', description: 'Enter the git repos, add a semicolon after each repo'),
+                            text(name: 'GitRepos', defaultValue: 'https://github.com/DialgicMew/jGitrepo1.git;', description: 'Enter the git repos, add a semicolon after each repo'),
                             text(name: 'EmailIds', defaultValue: 'vatsalya.singh.ext@telekom-digital.com;', description: 'Enter the git repos, add a semicolon after each repo'),
                             string(name: 'source', defaultValue: 'dev', description: 'Source Branch of comparison'),
                             // defaultValue to be changed to dev in source and master in target. default value to be set to a company git repo in gitRepos ending by semicolon
@@ -223,7 +223,7 @@ node {
                 gitCheckout(gitRepo, 'dev')
 
                 def currentVersion = getCurrentVersion()
-                
+
                 def nextDevelopmentVersion = getNextDevelopmentVersion(currentVersion)
                 echo "Next development version from current version ${currentVersion} is ${nextDevelopmentVersion}"
 
