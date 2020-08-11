@@ -112,7 +112,7 @@ def getReleaseVersion(String currentVersion) {
 def getCurrentVersion() {
     echo "Getting current version"
     withMaven(maven: 'M3') {
-        def currentVersion = "${sh(script: 'mvn build-helper:parse-version help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true).trim()}"
+        def currentVersion = sh script: "mvn build-helper:parse-version help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true
         echo "Current version is ${currentVersion}"
     }
     return currentVersion
@@ -223,6 +223,7 @@ node {
                 gitCheckout(gitRepo, 'dev')
 
                 def currentVersion = getCurrentVersion()
+                
                 def nextDevelopmentVersion = getNextDevelopmentVersion(currentVersion)
                 echo "Next development version from current version ${currentVersion} is ${nextDevelopmentVersion}"
 
