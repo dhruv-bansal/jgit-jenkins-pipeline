@@ -75,10 +75,9 @@ def getNextDevelopmentVersion(String currentVersion) {
     try {
         def incrementPattern = readIncrementPattern()
         def releaseVersion = incrementPattern[0]
-
         def hotFixVersion = incrementPattern[1]
-        echo "${releaseVersion}  release"
-        echo "${hotFixVersion}  hotfix"
+        echo "${releaseVersion}"
+        echo "${hotFixVersion}"
 
         if (releaseVersion == 0) {
             values[0] = values[0] + 1
@@ -220,7 +219,8 @@ node {
                 echo "Checking out " + gitRepo
                 gitCheckout(gitRepo, 'dev')
 
-                getNextDevelopmentVersion("1.0.0-SNAPSHOT")
+                def nextRelease = getNextDevelopmentVersion("1.0.0-SNAPSHOT")
+                echo "${nextRelease}"
 
                 def codeDifference = checkCodeDifferenceBetweenGivenBranches()
                 echo "Code difference are eligible for release " + codeDifference
