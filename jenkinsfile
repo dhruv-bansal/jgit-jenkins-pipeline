@@ -20,9 +20,32 @@ def gitCheckout(String repo, String branchName) {
 
 
 def readIncrementPattern(){
+    //This method reads jgit.version file inside the git repos and takes substring of 5 element after the '=' sign inside that file. adds those values in string format to version array.
+    def version = []
+    //0th position for release version pattern, 1st postion for hotfix pattern read from file
     def patternValue = readFile(file: 'jgit.version')
-    echo "${patternValue}"
-    return patternValue
+    def start = 0
+    for (element in patternValue) {
+        if (element == '=') {
+            def additionValue = var.substring(start + 1, start + 6)
+            values.add(additionValue)
+        }
+        start = start + 1
+    }
+    finalPositionsOfY = []
+    for(element in version){
+        def countPoints = 0
+        for(letter in element){
+            if(letter == "y"){
+                finalPositionsOfY.add(countPoints)
+                break;
+            }
+            else if(letter=="."){
+                count = count + 1
+            }
+        }
+    }
+    return finalPositionsOfY
 }
 
 /**
@@ -51,10 +74,13 @@ def getNextDevelopmentVersion(String currentVersion) {
     }
     try {
         def incrementPattern = readIncrementPattern()
-        if (incrementPattern == 0) {
+        def releaseVersion = incrementPattern[0]
+        def hotFixVersion = incrementPattern[1]
+
+        if (releaseVersion == 0) {
             values[0] = values[0] + 1
 
-        } else if(incrementPattern == 1) {
+        } else if(releaseVersion == 1) {
             values[1] = values[1] + 1
 
         }
@@ -191,12 +217,7 @@ node {
                 echo "Checking out " + gitRepo
                 gitCheckout(gitRepo, 'dev')
 
-                def aaaa = readIncrementPattern()
-
-
-
-
-                // getNextDevelopmentVersion("1.0.0-SNAPSHOT")
+                getNextDevelopmentVersion("1.0.0-SNAPSHOT")
 
                 def codeDifference = checkCodeDifferenceBetweenGivenBranches()
                 echo "Code difference are eligible for release " + codeDifference
