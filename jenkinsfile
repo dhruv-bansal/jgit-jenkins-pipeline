@@ -27,7 +27,7 @@ def readIncrementPattern(){
     def start = 0
     for (element in patternValue) {
         if (element == '=') {
-            def additionValue = var.substring(start + 1, start + 6)
+            def additionValue = patternValue.substring(start + 1, start + 6)
             values.add(additionValue)
         }
         start = start + 1
