@@ -59,7 +59,9 @@ def getNextDevelopmentVersion(String currentVersion) {
     echo "Calculating next development version from current version ${currentVersion}"
     //0.0.1-SNAPSHOT
     def intermediateResult = getReleaseVersion(currentVersion);
+    echo "${intermediateResult}  intermediate"
     def extractedNumbers = intermediateResult + "."
+    echo "${extractedNumbers}  extracted"
     //0.0.1.
     def values = []
     def start = 0
