@@ -76,7 +76,6 @@ def getNextDevelopmentVersion(String currentVersion) {
         def incrementPattern = readIncrementPattern()
         def releaseVersion = incrementPattern[0]
         def hotFixVersion = incrementPattern[1]
-
         if (releaseVersion == 0) {
             values[0] = values[0] + 1
 
