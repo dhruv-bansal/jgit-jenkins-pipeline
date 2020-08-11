@@ -228,6 +228,7 @@ node {
         def gitRepos = parseInputData(params.GitRepos)
         def emails = parseInputData(params.EmailIds)
 
+        deleteDir();
         if (params.choice == 'Start-Release') {
 
             for (gitRepo in gitRepos) {
