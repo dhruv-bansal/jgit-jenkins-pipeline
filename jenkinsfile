@@ -58,7 +58,8 @@ def readIncrementPattern() {
 def getNextDevelopmentVersion(String currentVersion) {
     echo "Calculating next development version from current version ${currentVersion}"
     //0.0.1-SNAPSHOT
-    def extractedNumbers = currentVersion.substring(0, 5) + "."
+    def intermediateResult = getReleaseVersion(currentVersion);
+    def extractedNumbers = intermediateResult + "."
     //0.0.1.
     def values = []
     def start = 0
@@ -103,7 +104,11 @@ def getNextDevelopmentVersion(String currentVersion) {
  */
 def getReleaseVersion(String currentVersion) {
     echo "Calculating next release version from current version ${currentVersion}"
-    return currentVersion.substring(0, 5).trim()
+    for(int i = 0;i<currentVersion.size();i++){
+        if(currentVersion == "-"){
+            return currentVersion.substring(0, i)
+        }
+    }
 }
 
 /**
