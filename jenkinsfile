@@ -76,15 +76,13 @@ def getNextDevelopmentVersion(String currentVersion) {
         def incrementPattern = readIncrementPattern()
         def releaseVersion = incrementPattern[0]
         def hotFixVersion = incrementPattern[1]
-        echo "${releaseVersion}"
-        echo "${hotFixVersion}"
-
+        // echo "${releaseVersion}"
+        // echo "${hotFixVersion}"
         if (releaseVersion == 0) {
             values[0] = values[0] + 1
 
         } else if(releaseVersion == 1) {
             values[1] = values[1] + 1
-
         }
         else{
             values[2] = values[2] + 1
@@ -112,7 +110,7 @@ def getReleaseVersion(String currentVersion) {
  * This method finds the current version of given project
  */
 def getCurrentVersion() {
-
+    export pomversion=$(mvn build-helper:parse-version help:evaluate -Dexpression=project.version -q -DforceStdout );
 }
 
 /**
@@ -253,7 +251,8 @@ node {
                 echo "Checking out " + gitRepo
                 gitCheckout(gitRepo, 'dev')
 
-
+                def nextRelease = getNextDevelopmentVersion("1.0.0-SNAPSHOT")
+                echo "${nextRelease}"
 
                 def releaseBranchExists = isReleaseBranchExists()
                 if (releaseBranchExists == true) {
