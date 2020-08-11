@@ -144,7 +144,7 @@ def isReleaseBranchExists() {
     sh 'git branch --list release*'
 
     // check if this can be done by plugin
-    def branchList = sh returnStdout: true, script: "git branch --list release-*.*.*"
+    def branchList = sh returnStdout: true, script: "git branch -r --list *release-*.*.*"
     if (branchList.trim() != '') {
         return true
         //means that there exists some repo like release-*.*.*
