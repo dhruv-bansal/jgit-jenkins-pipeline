@@ -107,7 +107,7 @@ def getNextDevelopmentVersion(String currentVersion) {
 def getReleaseVersion(String currentVersion) {
     echo "Calculating next release version from current version ${currentVersion}"
     for(int i = 0;i<currentVersion.size();i++){
-        if(currentVersion == "-"){
+        if(currentVersion[i] == "-"){
             return currentVersion.substring(0, i)
         }
     }
