@@ -10,8 +10,8 @@ This [blog](https://jeffkreeftmeijer.com/git-flow/) answers everything!
 
 ## Implementation of gitflow
 This pipeline is backed by with maven plugin [jgit-flow](https://bitbucket.org/atlassian/jgit-flow) which is basically java implementation of gitflow-workflow by atlassian. 
-This plugin abstraction out major complexity of gitflow implementation and you can do [semantic versioning](https://semver.org/) by few commands of this plugin e.g. if your current maven code version is 1.0.0-SNAPSHOT *offcourse that means you are in development.*
-Following command will create a release branch that is generally by convention used for testing and once the code is released, it will also increase the version of the codebase in development.
+This plugin abstraction out major complexity of gitflow implementation and you can do [semantic versioning](https://semver.org/) by few commands of this plugin e.g. if your current maven code version is 1.0.0-SNAPSHOT *(offcourse that means you are in development).*
+Following command will create a release branch that is generally release branch is used for testing and bug fixing purposes and once the code is released, it will also increment the version of the codebase in development.
 
 `mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true -DreleaseVersion=${nextReleaseVersion} -DdevelopmentVersion=${nextDevelopmentVersion}"`
 
@@ -55,10 +55,14 @@ Al the time of this pipeline release 1.0-m5.1 version of jgit was latest.
            ...
         </plugins>
 ```
-##### Step 2: Configure jenkins pipeline in jenkins using this repository
+##### Step 2: Add jgit.version file at the root of project
+This file will derive the logic of calculating next development version and release version of the codebase when release-start command is executed.
+
+##### Step 3: Configure jenkins pipeline in jenkins using this repository
 
 ##### Step 3: Execute that job
 
+##### Step 3a: Start-Release
 1. Pipeline takes input all the code repositions links.
 1. This pipeline offers two modes right now -
     - start-release
@@ -69,7 +73,7 @@ Al the time of this pipeline release 1.0-m5.1 version of jgit was latest.
     - If no code changes are found then nothing happens for that repository. 
 
 ##### Visual workflow for start-release mode
-![start-release pipeline flow](http://www.plantuml.com/plantuml/png/TP1HRnCn48JV_Ij6uQMD11Bm5g6g0eH4dohW3_Zk9fSDUslBzYNmxp7M9LNQvk6aasVtcvczpyMdCa_gV5z2mkeh3oluZ8475wialKHl1Qi7sc-ntCHz-ySRbN5NnaIQStK1R-zEqWRVJOfunKFeSFDv5XrmbBB3eqz-Oc7AjyuvhwLEnhbWMzsZHAeOtK8vypRuMHZnVhCCUrMK7R5Uzs4W4cF8KlCBytgDcvCyIPz2PZf8pumNexVNV3uiFfLVQr53hDGkUUjti9eUteQgJJuNfalftJNcnmr-9Hb7fXRjN9KsEASXH3mkJ-0VzdEHOEqefpBI4hqeuG3W-htEq3pvLFGljc93Ri266cIxPQBrHCTo9EsYz6NHvkMrGBRuycnRSaqxsz1cNetqWqgV-UGzPx4H-r4AeiwZMDkbPiB2ytWELy6hyr7moVp4EqYkX0AgZD8fsntJOdyKLNI4Xd5aYmlMsF-_9tIzm0RVn2Jli0-Tkw_oFEa_)
+![start-release pipeline flow](http://www.plantuml.com/plantuml/png/VP51Qzj058Jl-ok6z98O6cXxCoM4jXIQKsXxB9YLD99V-lHMxAxizDzNtiYYZd4F0h7pzfiti_Sf-vZ7NfslSuYu-iBT5Nn2mvqR9abg6RnbN3tGVekb8ZwLVxnHwRQvYwGvDrt0sxkZjCOtaonUyH0gN7yQHHli9M_nwAFlcHdJZNFEQvucXp6Z3H6335GnkfcoyDRuaJdWtNeUzgh8MsArgaD3H0uXIGvHc5OhN1_bNkeO4kDEQYQSZTvSyda_-qpyAHOr31ErYjxgBSptXBTcqdgVCkEfT7k9-M6Ddr6wZh6ijaIbDSvf20CUvoFmcVMO9LWfvHX6oaPd8Hm0d7ikiDJxcFKFMh4c5L11DDAsZBIQg9Ztf9s4FGrOFBncI8lFhsvBGXj6QyhC_rUflTQZ-ioNFOpF6RFbiS8TOv9W1_zV5gdqYSiXsXZwVxfes8gnWHYUEictnxbMbBUNz_a-OvSknYJM5GG67JinLovJ4s7XTLyE5ycRpV8y-6Y-vnqamK86LJgfbEL5vroR3VQYYehGq7LygP3MkCEtq0yLhV5LJD8MJw5ozvCyzleN)
 
 
 
