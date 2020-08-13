@@ -1,5 +1,5 @@
 ### Jenkins Pipeline for Automatic code versioning
-##### (Code that uses [maven](https://maven.apache.org/) as build tool)
+##### (Code that uses [maven](https://maven.apache.org/) or [gradle](https://gradle.org/) as build tool)
 
 ## Introduction
 This pipeline is abstraction over [gitflow-workflow](https://nvie.com/posts/a-successful-git-branching-model). Basically gitflow is  git branching and release management workflow that helps developers keep track of features, hotfixes and releases in software projects.
@@ -62,19 +62,29 @@ This file will derive the logic of calculating next development version and rele
 
 ##### Step 3: Execute that job
 
-##### Step 3a: Start-Release
+
 1. Pipeline takes input all the code repositions links.
-1. This pipeline offers two modes right now -
+2. This pipeline offers two modes right now -
     - start-release
     - end-release
-2. Start-Release will execute following steps for all the code repositories
-    - If will compare the code of configured 'dev' and 'master' branch and **smartly figure out** if there code changes to release or not
-    - If there are changes then pipeline with execute jgitflow:release-start command to release that repo for testing.
+    
+##### Step 3a: Start-Release
+- Start-Release will execute following steps for all the code repositories
+    - If will compare the code of configured 'dev' and 'master' branch and *smartly figure out* if there code changes to release or not
+    - If there are code changes, pipeline with execute jgitflow:release-start command to create the release branch from develop branch with proper code versioning of dev and release.
     - If no code changes are found then nothing happens for that repository. 
 
 ##### Visual workflow for start-release mode
 ![start-release pipeline flow](http://www.plantuml.com/plantuml/png/VP51Qzj058Jl-ok6z98O6cXxCoM4jXIQKsXxB9YLD99V-lHMxAxizDzNtiYYZd4F0h7pzfiti_Sf-vZ7NfslSuYu-iBT5Nn2mvqR9abg6RnbN3tGVekb8ZwLVxnHwRQvYwGvDrt0sxkZjCOtaonUyH0gN7yQHHli9M_nwAFlcHdJZNFEQvucXp6Z3H6335GnkfcoyDRuaJdWtNeUzgh8MsArgaD3H0uXIGvHc5OhN1_bNkeO4kDEQYQSZTvSyda_-qpyAHOr31ErYjxgBSptXBTcqdgVCkEfT7k9-M6Ddr6wZh6ijaIbDSvf20CUvoFmcVMO9LWfvHX6oaPd8Hm0d7ikiDJxcFKFMh4c5L11DDAsZBIQg9Ztf9s4FGrOFBncI8lFhsvBGXj6QyhC_rUflTQZ-ioNFOpF6RFbiS8TOv9W1_zV5gdqYSiXsXZwVxfes8gnWHYUEictnxbMbBUNz_a-OvSknYJM5GG67JinLovJ4s7XTLyE5ycRpV8y-6Y-vnqamK86LJgfbEL5vroR3VQYYehGq7LygP3MkCEtq0yLhV5LJD8MJw5ozvCyzleN)
 
+##### Step 3b: End-Release
+- End-Release will execute following steps for all the code repositories
+    - If will figure out for what all repositories release branch exists by the configured release branch pattern.
+    - If release branch is found then end release command is triggered to finish the release branch and merge the code in master and create tag for the same. 
+    - If no release branch is found then that repository will be skipped.
+
+##### Visual workflow for end-release mode
+![end-release pipeline flow](http://www.plantuml.com/plantuml/png/TP11Qzmm58Jl-XN3zf8ijD0UJGcXb49p2ctlGRR6zjlAJqAItUJVrnQxBkqs1yF3Ctmpe_jSR2hpv8tjIaWuVEPoWCrmN4nS9UaaMYquF51_YkOgdkgDDrw6iGo9L6CS5xozkqWDlgeKiHuFeSNDfrcymoyf8nvjiXCBKxurnbXVLcUS2_gG42NIYzASAJklmVV2YFVDsMozHnc9ux4BZaYC8Ki9IPYFHznSv4cw53BJ8Xqphgoth-LyQF0ZoJ0mLSnUY-gCyI54F9v_WS_ivY91wu1BiDIMLu460AupTrWlwZAahwoDCyX2_OVpWaHFcuasMUr6y5booGW96igxcb6VjSUtlurzcDLL_NyrThTaK1qTsfTQuZH8GVJp85kLQR8hf5BeCw41jP-JlcUYTZHuDUBfQT-2Zsedta7oLXlqCaZhkKtV1r9TtRCTPll-41sN1bz49OyuXTRSh_8y-Ty0)
 
 
 
