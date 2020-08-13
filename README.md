@@ -30,7 +30,7 @@ Rest everything will be taken care by this pipeline.
 ## How this pipeline works
 
 ##### Step 1: Add jgit maven plugin as code 
-Al the time of this pipeline release 1.0-m5.1 version of jgit was latest.
+At the time of this pipeline release [1.0-m5.1 version](https://mvnrepository.com/artifact/external.atlassian.jgitflow/jgitflow-maven-plugin) of jgitflow-maven-plugin was latest.
 ```
  <build>
         <plugins>
