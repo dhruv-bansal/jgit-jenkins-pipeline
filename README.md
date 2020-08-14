@@ -18,11 +18,11 @@ Following command will create a release branch that is generally release branch 
 Similarly there are other goals in jgit-flow that helps in implementing complete gitflow-workflow via maven plugin. See [this](https://bitbucket.org/atlassian/jgit-flow/wiki/goals.wiki#!goals-overview) for more details on other goals.
 
 ## What this pipeline do
-Imagine a scenario where you are following microservices architecture and to maintain your code base you have different git repositories for your different microservices.
-Now as per basic microservices principle each microservice will have its independent release cycle that essentially means every microservice can have its own code version. 
-Now releasing and maintaining that code version manually via release plugin or even with jgit plugin via commands could be very tedious specially if you have many microservices in your system.
+Imagine a scenario where you have microservices architecture and to maintain your code base you have different git repositories for your different microservices.
+Now as per basic microservices principle each microservice can have its independent release cycle that essentially means every microservice can have its own code version. 
+Now releasing and maintaining that code version manually via release plugin or even with jgit plugin via command line could be very tedious specially if you have many microservices in your system.
 
-In this scenario this pipeline becomes a handy and fast solution and in single click, it will help you to release your code base for testing *i.e. in gitflow workflow terms start-release* and in another click once testing and bug fixing and done this pipeline will help you to merge the code in master and create a tag *in gitflow terms it means end-release*
+In this scenario this pipeline becomes a handy and fast solution. It will help you to release your code base for testing *i.e. in gitflow workflow terms start-release* and in another click once testing and bug fixing and done this pipeline will help you to merge the code in master and create a tag *in gitflow terms it means end-release*
 
 And the best part is **single click would orchestate this for all the microservices (git repositories)**. We just have to be follow some conventions and we deciplined in how we commit code and bring it to dev.
 Rest everything will be taken care by this pipeline.
