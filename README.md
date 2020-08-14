@@ -10,8 +10,8 @@ This [blog](https://jeffkreeftmeijer.com/git-flow/) answers everything!
 
 ## Implementation of gitflow
 This pipeline is backed by with maven plugin [jgit-flow](https://bitbucket.org/atlassian/jgit-flow) which is basically java implementation of gitflow-workflow by atlassian. 
-This plugin abstraction out major complexity of gitflow implementation and you can do [semantic versioning](https://semver.org/) by few commands of this plugin e.g. if your current maven code version is 1.0.0-SNAPSHOT *(offcourse that means you are in development).*
-Following command will create a release branch that is generally release branch is used for testing and bug fixing purposes and once the code is released, it will also increment the version of the codebase in development.
+This plugin abstract out major complexity of gitflow implementation and you can do [semantic versioning](https://semver.org/) by few commands of this plugin e.g. if your current maven code version is 1.0.0-SNAPSHOT *(offcourse that means you are in development).*
+Following command will create a release branch that is generally release branch is used for testing and bug fixing purposes and once the code is released, it will also increment the version of the codebase in development. So generally by semantic version once you release the code (taking above development version), your release version would be 1.0.0 or 1.0.0-RC and develop version would be 1.1.0 or 1.0.1 unless.
 
 `mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true -DreleaseVersion=${nextReleaseVersion} -DdevelopmentVersion=${nextDevelopmentVersion}"`
 
