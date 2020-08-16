@@ -38,7 +38,7 @@ node {
                 echo "cleaning workspace"
                 deleteDir();
 
-                echo "===================== Checking out " + gitRepo + " ===================================================================================="
+                echo "===================== Checking out " + gitRepo + " ====================="
                 gitOperation.gitCheckout(gitRepo, 'dev')
 
                 def codeDifference = gitOperation.checkCodeDifferenceBetweenGivenBranches()
@@ -67,9 +67,12 @@ node {
 
                     echo "Debug mode - " + params.debugmode
                     if (!params.debugmode) {
-                        withMaven(maven: 'M3') {
-                            // def output = sh returnStdout: true, script: "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true"
-                            sh "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true -Dusername=root -Dpassword=Passw0rd -DreleaseVersion=${nextReleaseVersion} -DdevelopmentVersion=${nextDevelopmentVersion}"
+                        withMaven(maven: 'JGIT_PIPELIE_MAVEN_PLUGIN') {
+                            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'JGIT_PIPELINE_REPOS_CREDS', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                                // def output = sh returnStdout: true, script: "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true" // capturing output
+                                sh "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true -Dusername=$USERNAME -Dpassword=$PASSWORD -DreleaseVersion=${nextReleaseVersion} -DdevelopmentVersion=${nextDevelopmentVersion}"
+
+                            }
                         }
                     }
                 }
@@ -94,10 +97,13 @@ node {
 
                     echo "Debug mode" + params.debugmode
                     if (!params.debugmode) {
-                        withMaven(maven: 'M3') {
-                            sh 'mvn --version'
-                            def output = sh returnStdout: true, script: "mvn jgitflow:release-finish -DallowSnapshots -DperformRelease=false -DpushReleases=true -Dusername=root -Dpassword=Passw0rd"
-                            echo output
+                        withMaven(maven: 'JGIT_PIPELIE_MAVEN_PLUGIN') {
+
+                            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'JGIT_PIPELINE_REPOS_CREDS', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                                sh "mvn jgitflow:release-finish -DallowSnapshots -DperformRelease=false -DpushReleases=true -Dusername=$USERNAME -Dpassword=$PASSWORD"
+                                // def output = sh returnStdout: true, script: "mvn jgitflow:release-finish -DallowSnapshots -DperformRelease=false -DpushReleases=true -Dusername=root -Dpassword=Passw0rd"
+                                //echo output
+                            }
                         }
                     }
                 } else {
