@@ -86,6 +86,8 @@ This file will derive the logic of calculating next development version and rele
 ##### Visual workflow for end-release mode
 ![end-release pipeline flow](http://www.plantuml.com/plantuml/png/TP11Qzmm58Jl-XN3zf8ijD0UJGcXb49p2ctlGRR6zjlAJqAItUJVrnQxBkqs1yF3Ctmpe_jSR2hpv8tjIaWuVEPoWCrmN4nS9UaaMYquF51_YkOgdkgDDrw6iGo9L6CS5xozkqWDlgeKiHuFeSNDfrcymoyf8nvjiXCBKxurnbXVLcUS2_gG42NIYzASAJklmVV2YFVDsMozHnc9ux4BZaYC8Ki9IPYFHznSv4cw53BJ8Xqphgoth-LyQF0ZoJ0mLSnUY-gCyI54F9v_WS_ivY91wu1BiDIMLu460AupTrWlwZAahwoDCyX2_OVpWaHFcuasMUr6y5booGW96igxcb6VjSUtlurzcDLL_NyrThTaK1qTsfTQuZH8GVJp85kLQR8hf5BeCw41jP-JlcUYTZHuDUBfQT-2Zsedta7oLXlqCaZhkKtV1r9TtRCTPll-41sN1bz49OyuXTRSh_8y-Ty0)
 
+## Configure Pipeline
+Follow the steps on this wiki page to configure the pipeline https://github.com/dhruv-bansal/jgit-jenkins-pipeline/wiki/Configuring-pipeline
 
 
 
