@@ -12,7 +12,7 @@ def gitCheckout(String repo, String branchName) {
               doGenerateSubmoduleConfigurations: false,
               extensions                       : [[$class: 'CleanBeforeCheckout'], [$class: 'LocalBranch'], [$class: 'PruneStaleBranch']],
               submoduleCfg                     : [],
-              userRemoteConfigs                : [[credentialsId: 'jgitpipelinecreds', url: repo]]])
+              userRemoteConfigs                : [[credentialsId: 'JGIT_PIPELINE_TARGET_REPOS_CREDS', url: repo]]])
     //add your own git creds thing
     // add extension of pruning - https://stackoverflow.com/questions/48936345/how-can-i-execute-code-on-prune-stale-remote-tracking-branches-in-jenkins
     // SCM steps: https://www.jenkins.io/doc/pipeline/steps/workflow-scm-step/
@@ -81,7 +81,7 @@ def checkCodeDifferenceBetweenGivenBranches() {
  */
 def getCurrentVersion() {
     echo "Getting current version"
-    withMaven(maven: 'M3') {
+    withMaven(maven: 'JGIT_PIPELIE_MAVEN_PLUGIN') {
         def currentVersion = sh(returnStdout: true,
                 script: 'mvn org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.version -q -DforceStdout --batch-mode -U -e -Dsurefire.useFile=false | tail -n 1').trim()
         echo "Current version is ${currentVersion}"
