@@ -1,5 +1,5 @@
 ### Jenkins Pipeline for Automatic code versioning
-##### (Code that uses [maven](https://maven.apache.org/) or [gradle](https://gradle.org/) as build tool)
+##### (Code that uses [maven](https://maven.apache.org/) as build tool)
 
 ## Introduction
 This pipeline is abstraction over [gitflow-workflow](https://nvie.com/posts/a-successful-git-branching-model). Basically gitflow is  git branching and release management workflow that helps developers keep track of features, hotfixes and releases in software projects.
