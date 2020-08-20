@@ -23,99 +23,103 @@ pipeline {
 
             steps {
 
-                sh 'ls -l -R ${WORKSPACE}@script'
-                def baseScriptsPath = "${WORKSPACE}@script/src/main/groovy/"
-                def inputSupport = load "${WORKSPACE}@script/src/main/groovy/InputSupport.groovy"
+                script {
 
-                def gitRepos = inputSupport.parseInputData(params.GitRepos)
-                def emails = inputSupport.parseInputData(params.EmailIds)
+                    sh 'ls -l -R ${WORKSPACE}@script'
+                    def baseScriptsPath = "${WORKSPACE}@script/src/main/groovy/"
+                    def inputSupport = load "${WORKSPACE}@script/src/main/groovy/InputSupport.groovy"
 
-                def gitOperation = load baseScriptsPath + "GitOperation.Groovy"
+                    def gitRepos = inputSupport.parseInputData(params.GitRepos)
+                    def emails = inputSupport.parseInputData(params.EmailIds)
 
-                if (params.choice == 'Start-Release') {
+                    def gitOperation = load baseScriptsPath + "GitOperation.Groovy"
 
-                    for (gitRepo in gitRepos) {
+                    if (params.choice == 'Start-Release') {
 
-                        echo "cleaning workspace"
-                        deleteDir();
+                        for (gitRepo in gitRepos) {
 
-                        echo "===================== Checking out " + gitRepo + " ====================="
-                        gitOperation.gitCheckout(gitRepo, 'dev')
+                            echo "cleaning workspace"
+                            deleteDir();
 
-                        def codeDifference = gitOperation.checkCodeDifferenceBetweenGivenBranches()
-                        echo "Code difference are eligible for release " + codeDifference
+                            echo "===================== Checking out " + gitRepo + " ====================="
+                            gitOperation.gitCheckout(gitRepo, 'dev')
 
-                        if (codeDifference == false) {
-                            echo "Code Repository ${gitRepo} not eligible for release, since no code difference found between branches ${params.source} and ${params.target}"
+                            def codeDifference = gitOperation.checkCodeDifferenceBetweenGivenBranches()
+                            echo "Code difference are eligible for release " + codeDifference
 
-                        } else {
+                            if (codeDifference == false) {
+                                echo "Code Repository ${gitRepo} not eligible for release, since no code difference found between branches ${params.source} and ${params.target}"
 
-                            def currentVersion = gitOperation.getCurrentVersion()
+                            } else {
 
-                            def buildVersion = load baseScriptsPath + "BuildVersion.groovy"
+                                def currentVersion = gitOperation.getCurrentVersion()
 
-                            def nextDevelopmentVersion = buildVersion.getNextDevelopmentVersion(currentVersion)
-                            echo "Next development version from current version ${currentVersion} is ${nextDevelopmentVersion}"
+                                def buildVersion = load baseScriptsPath + "BuildVersion.groovy"
 
-                            def nextReleaseVersion = buildVersion.getReleaseVersion(currentVersion);
-                            echo "Next release version from current version ${currentVersion} is ${nextReleaseVersion}"
+                                def nextDevelopmentVersion = buildVersion.getNextDevelopmentVersion(currentVersion)
+                                echo "Next development version from current version ${currentVersion} is ${nextDevelopmentVersion}"
 
-                            echo "Some Changes have been detected between branches ${params.source} and ${params.target} in ${gitRepo}"
-                            sh 'git branch'
-                            sh 'git checkout dev'
-                            sh 'git branch -a'
-                            sh 'git branch -r'
+                                def nextReleaseVersion = buildVersion.getReleaseVersion(currentVersion);
+                                echo "Next release version from current version ${currentVersion} is ${nextReleaseVersion}"
 
-                            echo "Debug mode - " + params.debugmode
-                            if (!params.debugmode) {
-                                withMaven(maven: 'JGIT_PIPELIE_MAVEN_PLUGIN') {
-                                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'JGIT_PIPELINE_TARGET_REPOS_CREDS', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                                        // def output = sh returnStdout: true, script: "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true" // capturing output
-                                        sh "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true -Dusername=$USERNAME -Dpassword=$PASSWORD -DreleaseVersion=${nextReleaseVersion} -DdevelopmentVersion=${nextDevelopmentVersion}"
+                                echo "Some Changes have been detected between branches ${params.source} and ${params.target} in ${gitRepo}"
+                                sh 'git branch'
+                                sh 'git checkout dev'
+                                sh 'git branch -a'
+                                sh 'git branch -r'
 
+                                echo "Debug mode - " + params.debugmode
+                                if (!params.debugmode) {
+                                    withMaven(maven: 'JGIT_PIPELIE_MAVEN_PLUGIN') {
+                                        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'JGIT_PIPELINE_TARGET_REPOS_CREDS', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                                            // def output = sh returnStdout: true, script: "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true" // capturing output
+                                            sh "mvn jgitflow:release-start -DallowSnapshots -DpushReleases=true -Dusername=$USERNAME -Dpassword=$PASSWORD -DreleaseVersion=${nextReleaseVersion} -DdevelopmentVersion=${nextDevelopmentVersion}"
+
+                                        }
                                     }
                                 }
                             }
+
+                            echo "cleaning workspace"
+                            deleteDir();
                         }
+                    } else if (params.choice == 'End-Release') {
 
-                        echo "cleaning workspace"
-                        deleteDir();
-                    }
-                } else if (params.choice == 'End-Release') {
+                        for (gitRepo in gitRepos) {
 
-                    for (gitRepo in gitRepos) {
+                            deleteDir();
+                            echo "===================== Checking out " + gitRepo + " ====================="
+                            gitOperation.gitCheckout(gitRepo, 'dev') // TODO: pick dev branch from jgit configuration
 
-                        deleteDir();
-                        echo "===================== Checking out " + gitRepo + " ====================="
-                        gitOperation.gitCheckout(gitRepo, 'dev') // TODO: pick dev branch from jgit configuration
+                            def releaseBranchExists = gitOperation.isReleaseBranchExists()
+                            if (releaseBranchExists == true) {
+                                sh 'git branch'
+                                sh 'git checkout dev'
+                                sh 'git branch -a'
+                                sh 'git branch -r'
+                                echo "Run maven command for ending the release"
 
-                        def releaseBranchExists = gitOperation.isReleaseBranchExists()
-                        if (releaseBranchExists == true) {
-                            sh 'git branch'
-                            sh 'git checkout dev'
-                            sh 'git branch -a'
-                            sh 'git branch -r'
-                            echo "Run maven command for ending the release"
+                                echo "Debug mode" + params.debugmode
+                                if (!params.debugmode) {
+                                    withMaven(maven: 'JGIT_PIPELIE_MAVEN_PLUGIN') {
 
-                            echo "Debug mode" + params.debugmode
-                            if (!params.debugmode) {
-                                withMaven(maven: 'JGIT_PIPELIE_MAVEN_PLUGIN') {
-
-                                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'JGIT_PIPELINE_TARGET_REPOS_CREDS', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                                        sh "mvn jgitflow:release-finish -DallowSnapshots -DperformRelease=false -DpushReleases=true -Dusername=$USERNAME -Dpassword=$PASSWORD"
-                                        // def output = sh returnStdout: true, script: "mvn jgitflow:release-finish -DallowSnapshots -DperformRelease=false -DpushReleases=true -Dusername=root -Dpassword=Passw0rd"
-                                        //echo output
+                                        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'JGIT_PIPELINE_TARGET_REPOS_CREDS', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                                            sh "mvn jgitflow:release-finish -DallowSnapshots -DperformRelease=false -DpushReleases=true -Dusername=$USERNAME -Dpassword=$PASSWORD"
+                                            // def output = sh returnStdout: true, script: "mvn jgitflow:release-finish -DallowSnapshots -DperformRelease=false -DpushReleases=true -Dusername=root -Dpassword=Passw0rd"
+                                            //echo output
+                                        }
                                     }
                                 }
+                            } else {
+                                echo "No release branch exist for " + gitRepo
                             }
-                        } else {
-                            echo "No release branch exist for " + gitRepo
-                        }
 
-                        echo "cleaning workspace"
-                        deleteDir();
+                            echo "cleaning workspace"
+                            deleteDir();
+                        }
                     }
                 }
+
             } // step ends
 
         }  // stage ends
