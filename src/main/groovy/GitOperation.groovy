@@ -81,7 +81,7 @@ def checkCodeDifferenceBetweenGivenBranches() {
  */
 def getCurrentVersion() {
     echo "Getting current version"
-    withMaven(maven: 'JGIT_PIPELIE_MAVEN_PLUGIN') {
+    withMaven(maven: 'JGIT_PIPELINE_MAVEN_PLUGIN') {
         def currentVersion = sh(returnStdout: true,
                 script: 'mvn org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.version -q -DforceStdout --batch-mode -U -e -Dsurefire.useFile=false | tail -n 1').trim()
         echo "Current version is ${currentVersion}"
