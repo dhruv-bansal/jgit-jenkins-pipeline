@@ -34,12 +34,11 @@ pipeline {
 
                     def gitOperation = load baseScriptsPath + "GitOperation.Groovy"
 
+                    def buildVersion = load baseScriptsPath + "BuildVersion.groovy"
+
                     if (params.choice == 'Start-Release') {
 
                         for (gitRepo in gitRepos) {
-
-                            echo "cleaning workspace"
-                            deleteDir();
 
                             echo "===================== Checking out " + gitRepo + " ====================="
                             gitOperation.gitCheckout(gitRepo, 'dev')
@@ -53,8 +52,6 @@ pipeline {
                             } else {
 
                                 def currentVersion = gitOperation.getCurrentVersion()
-
-                                def buildVersion = load baseScriptsPath + "BuildVersion.groovy"
 
                                 def nextDevelopmentVersion = buildVersion.getNextDevelopmentVersion(currentVersion)
                                 echo "Next development version from current version ${currentVersion} is ${nextDevelopmentVersion}"
