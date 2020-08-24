@@ -128,7 +128,8 @@ pipeline {
 
 
 def getBaseScriptsPath() {
-    sh 'ls -l -R ${baseScriptPath}' // debug statement
+
+    sh 'ls -l -R ${WORKSPACE}' // debug statement
 
     def directlyInWorkspace = fileExists '${WORKSPACE}/src/main/groovy/InputSupport.groovy'
 
