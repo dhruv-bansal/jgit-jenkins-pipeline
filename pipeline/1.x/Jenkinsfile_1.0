@@ -131,23 +131,23 @@ def getBaseScriptsPath() {
 
     sh "ls -l -R ${WORKSPACE}" // debug statement
 
-    def directlyInWorkspace = fileExists '/${WORKSPACE}/src/main/groovy/InputSupport.groovy'
+    def directlyInWorkspace = fileExists "/${WORKSPACE}/src/main/groovy/InputSupport.groovy"
 
     def baseScriptPath;
     if (directlyInWorkspace) {
-        baseScriptPath = '${WORKSPACE}'
+        baseScriptPath = "${WORKSPACE}"
     } else {
 
-        def workSpaceInScriptDirectory = fileExists '/${WORKSPACE}@script/src/main/groovy/InputSupport.groovy'
+        def workSpaceInScriptDirectory = fileExists "/${WORKSPACE}@script/src/main/groovy/InputSupport.groovy"
 
         if (workSpaceInScriptDirectory) {
-            baseScriptPath = '${WORKSPACE}@script'
+            baseScriptPath = "${WORKSPACE}@script"
             sh "ls -l -R ${baseScriptPath}" // debug statement
         } else {
             throw new Exception("Base script path not found")
         }
     }
-    echo 'Found base path of script at ${baseScriptPath}'
+    echo "Found base path of script at ${baseScriptPath}"
     return baseScriptPath
 }
 
