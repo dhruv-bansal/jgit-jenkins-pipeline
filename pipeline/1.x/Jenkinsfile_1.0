@@ -126,7 +126,10 @@ pipeline {
     }
 }
 
-
+/**
+ * This method returns the basescript path based on where the pipeline code has been checked out
+ * @return
+ */
 def getBaseScriptsPath() {
 
     sh "ls -l -R ${WORKSPACE}" // debug statement
