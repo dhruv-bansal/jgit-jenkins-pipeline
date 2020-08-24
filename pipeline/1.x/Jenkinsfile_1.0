@@ -23,9 +23,11 @@ pipeline {
 
                 script {
 
-                    sh 'ls -l -R ${WORKSPACE}@script'
-                    def baseScriptsPath = "${WORKSPACE}@script/src/main/groovy/"
-                    def inputSupport = load "${WORKSPACE}@script/src/main/groovy/InputSupport.groovy"
+                    def basePath = getBaseScriptsPath()
+                    def baseScriptsPath = basePath + "/src/main/groovy/"
+                    echo "Base script path ${baseScriptsPath}"
+
+                    def inputSupport = load baseScriptsPath + "InputSupport.groovy"
 
                     def gitRepos = inputSupport.parseInputData(params.GitRepos)
                     def emails = inputSupport.parseInputData(params.EmailIds)
@@ -121,7 +123,35 @@ pipeline {
             } // step ends
 
         }  // stage ends
-
     }
 }
+
+/**
+ * This method returns the basescript path based on where the pipeline code has been checked out
+ * @return
+ */
+def getBaseScriptsPath() {
+
+    sh "ls -l -R ${WORKSPACE}" // debug statement
+
+    def directlyInWorkspace = fileExists "/${WORKSPACE}/src/main/groovy/InputSupport.groovy"
+
+    def baseScriptPath;
+    if (directlyInWorkspace) {
+        baseScriptPath = "${WORKSPACE}"
+    } else {
+
+        def workSpaceInScriptDirectory = fileExists "/${WORKSPACE}@script/src/main/groovy/InputSupport.groovy"
+
+        if (workSpaceInScriptDirectory) {
+            baseScriptPath = "${WORKSPACE}@script"
+            sh "ls -l -R ${baseScriptPath}" // debug statement
+        } else {
+            throw new Exception("Base script path not found")
+        }
+    }
+    echo "Found base path of script at ${baseScriptPath}"
+    return baseScriptPath
+}
+
 
