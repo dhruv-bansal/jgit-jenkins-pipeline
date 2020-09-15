@@ -85,6 +85,7 @@ def getCurrentVersion() {
         def currentVersion = sh(returnStdout: true,
                 script: 'mvn org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.version -q -DforceStdout --batch-mode -U -e -Dsurefire.useFile=false | tail -n 1').trim()
         echo "Current version is ${currentVersion}"
+        //TODO: add validation for output version
         return currentVersion
     }
 }

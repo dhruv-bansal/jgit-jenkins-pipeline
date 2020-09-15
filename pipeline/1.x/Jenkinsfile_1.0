@@ -1,5 +1,10 @@
 #!/usr/bin/env groovy
 
+script {
+    load "/pipeline/1.x/base_values.groovy"
+    echo "${env.JGIT_PIPELINE_DEFAULT_GIT_REPOS}"
+    echo "${env.JGIT_PIPELINE_DEFAULT_GIT_REPOS}"
+}
 
 pipeline {
 
@@ -31,10 +36,14 @@ pipeline {
 
                     def gitRepos = inputSupport.parseInputData(params.GitRepos)
                     def emails = inputSupport.parseInputData(params.EmailIds)
+                    echo "Input git repositories ${gitRepos} and email id ${emails}"
 
-                    def gitOperation = load baseScriptsPath + "GitOperation.Groovy"
-
+                    echo "loading BuildVersion script files ${baseScriptsPath}BuildVersion.groovy"
                     def buildVersion = load baseScriptsPath + "BuildVersion.groovy"
+
+                    echo "loading GitOperation script files ${baseScriptsPath}GitOperation.groovy"
+                    def gitOperation = load baseScriptsPath + "GitOperation.groovy"
+
 
                     if (params.choice == 'Start-Release') {
 
