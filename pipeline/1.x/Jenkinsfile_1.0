@@ -1,10 +1,7 @@
 #!/usr/bin/env groovy
 
-script {
-    load "/pipeline/1.x/base_values.groovy"
-    echo "${env.JGIT_PIPELINE_DEFAULT_GIT_REPOS}"
-    echo "${env.JGIT_PIPELINE_DEFAULT_GIT_REPOS}"
-}
+def base_values = load("/pipeline/1.x/base_values.groovy")
+echo "Base values ${base_values}"
 
 pipeline {
 
