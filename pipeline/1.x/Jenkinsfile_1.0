@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-evaluate(new File("/pipeline/1.x/base_values.groovy"))
+evaluate(new File("./base_values.groovy"))
 echo "Git repos values ${JGIT_PIPELINE_DEFAULT_GIT_REPOS}"
 echo "notification email ${JGIT_PIPELINE_DEFAULT_NOTIFICATION_EMAIL}"
 
