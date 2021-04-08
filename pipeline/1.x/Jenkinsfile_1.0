@@ -5,7 +5,7 @@ pipeline {
 
     agent any
     parameters {
-        choice(name: 'choice', choices: ['Start-Release', 'End-Release'], description: 'Select Mode')
+        choice(name: 'choice', choices: ['Start-Release', 'End-Release', 'Update-Release'], description: 'Select Mode')
         booleanParam(name: 'debugmode', defaultValue: false, description: 'When debug mode is On, JGIT command will not be executed')
         text(name: 'GitRepos', defaultValue: "${JGIT_PIPELINE_DEFAULT_GIT_REPOS}", description: 'Enter the git repos, add a semicolon after each repo')
         text(name: 'EmailIds', defaultValue: "${JGIT_PIPELINE_DEFAULT_NOTIFICATION_EMAIL}", description: 'Enter the git repos, add a semicolon after each repo')
@@ -15,7 +15,7 @@ pipeline {
     }
 
 
-    stages {
+    stages { 
 
         stage('Operation') {
 
@@ -111,6 +111,34 @@ pipeline {
                                 echo "No release branch exist for " + gitRepo
                             }
 
+                            echo "cleaning workspace"
+                            deleteDir();
+                        }
+                    }else if (params.choice == "Update-Release") {
+                        for (gitRepo in gitRepos) {
+                            deleteDir();
+                            echo "===================== Checking out " + gitRepo + " ====================="
+                            gitOperation.gitCheckout(gitRepo, 'dev_tmp')
+                            def releaseBranchExists = gitOperation.isReleaseBranchExists()
+                            if (releaseBranchExists == true) {
+                            def codeDifference = gitOperation.checkCodeDifferenceBetweenGivenBranches()
+                            echo "Code difference are eligible for release update " + codeDifference
+                            if (codeDifference == false) {
+                                echo "Code Repository ${gitRepo} not eligible for release update, since no code difference found between branches ${params.source} and ${params.target}"
+                            } else {
+                                def currentDevVersion = gitOperation.getCurrentVersion()
+                                gitOperation.gitCheckout(gitRepo, '')
+                                def currentReleaseVersion = gitOperation.getCurrentVersion()
+                                gitOperation.gitCheckout(gitRepo, 'dev_tmp')
+                                sh "git merge release"
+                                gitOperation.gitCheckout(gitRepo, '')
+                                sh "git merge dev_tmp"
+                                sh ""
+
+                            }
+                            } else {
+                                echo "No release branch exist for " + gitRepo
+                            }
                             echo "cleaning workspace"
                             deleteDir();
                         }
