@@ -32,7 +32,7 @@ pipeline {
                     def gitRepos = inputSupport.parseInputData(params.GitRepos)
                     def emails = inputSupport.parseInputData(params.EmailIds)
 
-                    def gitOperation = load baseScriptsPath + "GitOperation.Groovy"
+                    def gitOperation = load baseScriptsPath + "GitOperation.groovy"
 
                     def buildVersion = load baseScriptsPath + "BuildVersion.groovy"
 
