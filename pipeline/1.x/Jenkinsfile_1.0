@@ -118,24 +118,22 @@ pipeline {
                         for (gitRepo in gitRepos) {
                             deleteDir();
                             echo "===================== Checking out " + gitRepo + " ====================="
-                            gitOperation.gitCheckout(gitRepo, 'dev_tmp')
+                            gitOperation.gitCheckout(gitRepo, 'dev')
+                            gitOperation.gitCheckout(gitRepo, 'dev_copy')
                             def releaseBranchExists = gitOperation.isReleaseBranchExists()
                             if (releaseBranchExists == true) {
-                            def codeDifference = gitOperation.checkCodeDifferenceBetweenGivenBranches()
-                            echo "Code difference are eligible for release update " + codeDifference
-                            if (codeDifference == false) {
-                                echo "Code Repository ${gitRepo} not eligible for release update, since no code difference found between branches ${params.source} and ${params.target}"
-                            } else {
-                                def currentDevVersion = gitOperation.getCurrentVersion()
-                                gitOperation.gitCheckout(gitRepo, '')
-                                def currentReleaseVersion = gitOperation.getCurrentVersion()
-                                gitOperation.gitCheckout(gitRepo, 'dev_tmp')
-                                sh "git merge release"
-                                gitOperation.gitCheckout(gitRepo, '')
-                                sh "git merge dev_tmp"
-                                sh ""
-
-                            }
+                                def releaseBranchName = gitOperation.getReleaseBranch()
+                                def codeDifference = gitOperation.checkCodeDifferenceBetweenGivenBranches()
+                                echo "Code difference are eligible for release update " + codeDifference
+                                if (codeDifference == false) {
+                                    echo "Code Repository ${gitRepo} not eligible for release update, since no code difference found between branches ${params.source} and ${params.target}"
+                                } else {
+                                    sh "git merge ${releaseBranchName}"
+                                    gitOperation.gitCheckout(gitRepo, ${releaseBranchName})
+                                    sh "git merge dev_copy"
+                                    sh "git push origin"  
+                                    sh "git branch -d dev_copy"
+                                }
                             } else {
                                 echo "No release branch exist for " + gitRepo
                             }

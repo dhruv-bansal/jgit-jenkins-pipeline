@@ -40,6 +40,11 @@ def isReleaseBranchExists() {
     //means that there no existing repo like release-*.*.*
 }
 
+def getReleaseBranch() {
+    def branchList = sh returnStdout: true, script: "git branch -r --list *release-*.*.*"
+    return branchList;
+}
+
 /**
  * This method evalutes the difference between given source and target branch.
  * - if the difference is only one and that to only pom module version then this method returns false i.e. repo is not eligible to release
