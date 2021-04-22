@@ -118,6 +118,7 @@ pipeline {
                         for (gitRepo in gitRepos) {
                             deleteDir();
                             echo "===================== Checking out " + gitRepo + " ====================="
+                            sh 'git branch -a'
                             gitOperation.gitCheckout(gitRepo, 'dev')
                             echo "===================== Checking out dev complete ====================="
 
