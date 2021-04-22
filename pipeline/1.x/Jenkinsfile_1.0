@@ -119,9 +119,17 @@ pipeline {
                             deleteDir();
                             echo "===================== Checking out " + gitRepo + " ====================="
                             gitOperation.gitCheckout(gitRepo, 'dev')
+                            echo "===================== Checking out dev complete ====================="
+
                             gitOperation.gitCheckout(gitRepo, 'dev_copy')
+                            echo "===================== Checking out dev_copy complete ====================="
+
                             def releaseBranchExists = gitOperation.isReleaseBranchExists()
+                            echo "===================== relase branch status " + releaseBranchExists +"====================="
+
                             if (releaseBranchExists == true) {
+                            echo "===================== relase branch true ====================="
+
                                 def releaseBranchName = gitOperation.getReleaseBranch()
                                 def codeDifference = gitOperation.checkCodeDifferenceBetweenGivenBranches()
                                 echo "Code difference are eligible for release update " + codeDifference
