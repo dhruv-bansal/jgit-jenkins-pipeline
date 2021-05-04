@@ -43,7 +43,7 @@ pipeline {
                             echo "===================== Checking out " + gitRepo + " ====================="
                             gitOperation.gitCheckout(gitRepo, 'dev')
 
-                            def codeDifference = gitOperation.checkCodeDifferenceBetweenGivenBranches()
+                            def codeDifference = gitOperation.checkCodeDifferenceBetweenGivenBranches(params.source, params.target)
                             echo "Code difference are eligible for release " + codeDifference
 
                             if (codeDifference == false) {
@@ -119,31 +119,34 @@ pipeline {
                             deleteDir();
                             echo "===================== Checking out " + gitRepo + " ====================="
                             gitOperation.gitCheckout(gitRepo, 'dev')
-                            echo "===================== Checking out dev complete ====================="
-
+                
                             def releaseBranchExists = gitOperation.isReleaseBranchExists()
-                            echo "===================== relase branch status " + releaseBranchExists +"====================="
+                            echo " relase branch status: " + releaseBranchExists
 
                             if (releaseBranchExists == true) {
-                            echo "===================== relase branch true ====================="
+                            echo "relase branch exists"
                                 def releaseBranchName = gitOperation.getReleaseBranch()
-                                def codeDifference = gitOperation.checkCodeDifferenceBetweenGivenBranches()
+                                def codeDifference = gitOperation.checkCodeDifferenceBetweenGivenBranches('dev', releaseBranchName)
                                 echo "Code difference are eligible for release update " + codeDifference
                                 if (codeDifference == false) {
-                                    echo "Code Repository ${gitRepo} not eligible for release update, since no code difference found between branches ${params.source} and ${params.target}"
+                                    echo "Code Repository ${gitRepo} not eligible for release update, since no code difference found between branches dev and ${releaseBranchName}"
                                 } else {
                                     gitOperation.gitCheckout(gitRepo, ${releaseBranchName})
                                     def currentVersion = gitOperation.getCurrentVersion();
                                     gitOperation.gitCheckout(gitRepo, 'dev')
-                                    echo "===================== Checking out dev complete ====================="
+                                    echo " Checking out dev complete "
                                     gitOperation.gitCheckout(gitRepo, 'dev_copy')
-                                    echo "===================== Checking out dev_copy complete ====================="
+                                    echo " Checking out dev_copy complete "
                                     
-                                    "command to change version"
+                                    sh "mvn release:update-versions -DautoVersionSubmodules=true -DdevelopmentVersion=${currentVersion} -DgenerateBackupPoms=false"
 
                                     gitOperation.gitCheckout(gitRepo, ${releaseBranchName})
-                                    sh "git merge dev_copy"
-                                    
+                                    try{
+                                        sh "git merge dev_copy"
+                                    }
+                                    catch (exc) {
+                                        echo "Could not merge release into dev: ${exc}"
+                                    } 
                                     sh "git push origin"  
                                     sh "git branch -d dev_copy"
                                 }

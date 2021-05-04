@@ -52,13 +52,13 @@ def getReleaseBranch() {
  *
  * @return
  */
-def checkCodeDifferenceBetweenGivenBranches() {
-    def fileName = sh returnStdout: true, script: "git diff --name-only remotes/origin/${params.source} remotes/origin/${params.target}"
+def checkCodeDifferenceBetweenGivenBranches(String source, String target) {
+    def fileName = sh returnStdout: true, script: "git diff --name-only remotes/origin/${source} remotes/origin/${target}"
     if (fileName.trim() == "pom.xml") {
-        def numAns = sh returnStdout: true, script: "git diff --numstat remotes/origin/${params.source} remotes/origin/${params.target}"
+        def numAns = sh returnStdout: true, script: "git diff --numstat remotes/origin/${source} remotes/origin/${target}"
         def numOfLines = numAns.substring(0, 2).trim()
         if (numOfLines == '1') {
-            def output = sh returnStdout: true, script: "git diff --unified=0 remotes/origin/${params.source} remotes/origin/${params.target}"
+            def output = sh returnStdout: true, script: "git diff --unified=0 remotes/origin/${source} remotes/origin/${target}"
             def tag;
             for (int start = 0; start < output.length(); start = start + 1) {
                 if (output[start] == '<') {
